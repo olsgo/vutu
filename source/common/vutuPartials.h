@@ -1,7 +1,3 @@
-
-// vutu
-// Copyright (c) 2022 Madrona Labs LLC. http://www.madronalabs.com
-
 #pragma once
 
 #include "mldsp.h"
@@ -73,6 +69,15 @@ struct PartialFrame
   float phase{0};
 };
 
+// RBEP matrix format
+struct RBEPBreakpoint {
+    int index;
+    double frequency;
+    double amplitude; 
+    double phase;
+    double bandwidth;
+    double timeOffset;
+};
 
 Interval getParamRangeInPartials(const VutuPartialsData& partialData, Symbol param);
 

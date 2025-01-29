@@ -1,7 +1,3 @@
-// VST3 example code for madronalib
-// (c) 2020, Madrona Labs LLC, all rights reserved
-// see LICENSE.txt for details
-
 #include "vutuController.h"
 #include "vutuView.h"
 #include "vutu.h"
@@ -23,6 +19,9 @@
 #include "loris.h"
 #include "PartialList.h"
 #include "Synthesizer.h"
+
+// SDIF includes
+#include "sdif.h"
 
 using namespace ml;
 
@@ -542,6 +541,37 @@ void VutuController::synthesize()
   _synthesizedSample.sampleRate = synthParams.sampleRate;
 }
 
+void VutuController::exportToSDIF(const std::string& filename)
+{
+  // Initialize SDIF with RBEP type
+  SdifGenInit("RBEP");
+
+  // Open SDIF file for writing
+  SdifFileT* file = SdifFOpen(filename.c_str(), eWriteFile);
+
+  // Write SDIF header
+  SdifFWriteHeader(file, eSignatureSDIF);
+
+  // Define RBEP matrix type
+  SdifDefineMatrixType(file, "1RBEP", 6, "Index Frequency Amplitude Phase Bandwidth Offset");
+
+  // Write partials to SDIF file
+  for (const auto& partial : _vutuPartials->partials)
+  {
+    for (size_t i = 0; i < partial.time.size(); ++i)
+    {
+      SdifMatrixT* matrix = SdifFCurrMatrix(file);
+      SdifFSetCurrMatrix(file, matrix);
+      SdifFSetMatrixHeader(file, matrix, "1RBEP", 1, 1, partial.time[i]);
+
+      SdifFSetMatrixRow(file, matrix, 1, 1, partial.freq[i], partial.amp[i], partial.phase[i], partial.bandwidth[i], partial.time[i]);
+      SdifFWriteMatrix(file, matrix);
+    }
+  }
+
+  // Close SDIF file
+  SdifFClose(file);
+}
 
 void VutuController::onMessage(Message m)
 {
@@ -787,6 +817,13 @@ void VutuController::onMessage(Message m)
           messageHandled = true;
           break;
         }
+        case(hash("export_sdif")):
+        {
+          // export to SDIF
+          exportToSDIF("output.sdif");
+          messageHandled = true;
+          break;
+        }
           
         default:
         {
@@ -806,4 +843,3 @@ void VutuController::onMessage(Message m)
     AppController::onMessage(m);
   }
 }
-
