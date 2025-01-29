@@ -113,6 +113,12 @@ message("mlvg headers should be in: " ${MLVG_INCLUDE_DIR} )
 message("mlvg library should be at: " ${MLVG_LIBRARY_DIR}/${mlvg_NAME} )
 
 #--------------------------------------------------------------------
+# find SDIF library
+#--------------------------------------------------------------------
+
+find_package(Sdif REQUIRED)
+
+#--------------------------------------------------------------------
 # compile binary resources
 #--------------------------------------------------------------------
 
@@ -283,6 +289,9 @@ elseif(WIN32)
 endif()
 target_include_directories(${target} PRIVATE ${MLVG_INCLUDE_DIR})
 
+# add SDIF library
+target_link_libraries(${target} PRIVATE Sdif::Sdif)
+
 # add other external libraries
 target_link_libraries(${target} PRIVATE SndFile::sndfile libresample)
 
@@ -389,4 +398,3 @@ if(APPLE)
       COMMAND codesign --force --sign "-" --entitlements ${ENTITLEMENTS} "${APP_BUNDLE}/Contents/Frameworks/SDL2.framework/Versions/A"
   )
 endif()
-
