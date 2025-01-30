@@ -1,4 +1,3 @@
-
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -87,7 +86,6 @@ int main(int argc, char *argv[])
   
   // set initial size. This is not a fixed-ratio app, meaning the window sizes
   // freely and the grid unit size remains constant. 
-  appView.setSizeInGridUnits(kDefaultGridUnits);
   appView.setGridSizeDefault(kDefaultGridUnitSize * devScale);
 
   // get default rect 
@@ -95,11 +93,11 @@ int main(int argc, char *argv[])
   Rect boundsRect(0, 0, defaultSize.x(), defaultSize.y());
   Rect defaultRect = alignCenterToPoint(boundsRect, c);
  
-  SDL_Window *window = initSDLWindow(appView, defaultRect, "vutu");
+  SDL_Window *window = newSDLWindow(appView, defaultRect, "vutu");
   if(window)
   {
     // watch for window resize events during drag
-    ResizingEventWatcherData watcherData{window, &appView};
+    ResizingEventWatcherData watcherData{window, static_cast<PlatformView*>(&appView)};
     SDL_AddEventWatch( resizingEventWatcher, &watcherData );
     
     // make Processor
@@ -141,5 +139,3 @@ int main(int argc, char *argv[])
   
   return 0;
 }
-
-

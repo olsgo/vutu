@@ -1,7 +1,3 @@
-// mlvg: GUI library for madronalib
-// (c) 2020, Madrona Labs LLC, all rights reserved
-// see LICENSE.txt for details
-
 #include "vutuView.h"
 
 #include "madronalib.h"
@@ -496,7 +492,12 @@ void VutuView::onMessage(Message msg)
   }
 }
 
+void VutuView::setSizeInGridUnits(const Vec2& size)
+{
+  // Implementation of setSizeInGridUnits
+}
 
-
-
-
+void VutuView::createPlatformView(void* windowPtr, int flags)
+{
+  // Implementation of createPlatformView
+}

@@ -1,4 +1,4 @@
-// VST3 example code for madronalib
+ // VST3 example code for madronalib
 // (c) 2020, Madrona Labs LLC, all rights reserved
 // see LICENSE.txt for details
 
@@ -39,4 +39,8 @@ public:
   
   // VutuView interface
   void makeWidgets(const ParameterDescriptionList& pdl);
+
+  // New member functions
+  void setSizeInGridUnits(const Vec2& size);
+  void createPlatformView(void* windowPtr, int flags);
 };
