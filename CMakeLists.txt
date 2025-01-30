@@ -113,6 +113,10 @@ message("mlvg headers should be in: " ${MLVG_INCLUDE_DIR} )
 message("mlvg library should be at: " ${MLVG_LIBRARY_DIR}/${mlvg_NAME} )
 
 #--------------------------------------------------------------------
+# Add source directory to module path to find FindSdif.cmake
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/source")
+
+#--------------------------------------------------------------------
 # find SDIF library
 #--------------------------------------------------------------------
 

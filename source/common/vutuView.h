@@ -24,7 +24,6 @@ class VutuView final :
   public ml::AppView
 {
 public:
-
   VutuView(TextFragment appName, size_t instanceNum);
   ~VutuView();
 
@@ -33,12 +32,11 @@ public:
   void layoutView(DrawContext dc) override;
   void onGUIEvent(const GUIEvent& event) override {};
   void onResize(Vec2 newSize) override {};
+  void clearResources() override {}; // Add this line to implement the pure virtual method
   
   // Actor interface
   void onMessage(Message m) override;
   
   // VutuView interface
   void makeWidgets(const ParameterDescriptionList& pdl);
-
-  
 };
