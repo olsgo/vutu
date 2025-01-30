@@ -560,7 +560,7 @@ void VutuController::exportToSDIF(const std::string& filename)
   {
     for (size_t i = 0; i < partial.time.size(); ++i)
     {
-      SdifMatrixT* matrix = SdifFCurrMatrix(file);
+      SdifMatrixT* matrix = SdifFCurrNbMatrix(file);
       SdifFSetCurrMatrix(file, matrix);
       SdifFSetMatrixHeader(file, matrix, "1RBEP", 1, 1, partial.time[i]);
 

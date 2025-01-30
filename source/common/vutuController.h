@@ -1,4 +1,4 @@
-// VST3 example code for madronalib
+ // VST3 example code for madronalib
 // (c) 2020, Madrona Labs LLC, all rights reserved
 // see LICENSE.txt for details
 
@@ -40,6 +40,9 @@ public:
   // enable / disable the right buttons on the View
   void setButtonEnableStates();
   
+  // Add the declaration of exportToSDIF function
+  void exportToSDIF(const std::string& filename);
+
 private:
 
   ml::Sample _sourceSample;
