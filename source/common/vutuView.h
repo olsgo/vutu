@@ -21,7 +21,8 @@ const ml::Rect kDefaultPopupStartRect{0, 0, 1, 1};
 
 
 class VutuView final :
-  public ml::AppView
+  public ml::AppView,
+  public ml::PlatformView
 {
 public:
   VutuView(TextFragment appName, size_t instanceNum);
@@ -39,4 +40,8 @@ public:
   
   // VutuView interface
   void makeWidgets(const ParameterDescriptionList& pdl);
+
+  // New member functions
+  void setSizeInGridUnits(const Vec2& size);
+  void createPlatformView(void* windowPtr, int flags);
 };
