@@ -1,4 +1,4 @@
- // VST3 example code for madronalib
+// VST3 example code for madronalib
 // (c) 2020, Madrona Labs LLC, all rights reserved
 // see LICENSE.txt for details
 
@@ -21,7 +21,8 @@ const ml::Rect kDefaultPopupStartRect{0, 0, 1, 1};
 
 
 class VutuView final :
-  public ml::AppView
+  public ml::AppView,
+  public ml::PlatformView
 {
 public:
   VutuView(TextFragment appName, size_t instanceNum);
