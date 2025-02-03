@@ -1,4 +1,4 @@
-// VST3 example code for madronalib
+ // VST3 example code for madronalib
 // (c) 2020, Madrona Labs LLC, all rights reserved
 // see LICENSE.txt for details
 
@@ -44,4 +44,8 @@ public:
   // New member functions
   void setSizeInGridUnits(const Vec2& size);
   void createPlatformView(void* windowPtr, int flags);
+  Vec2 getGridUnits() const;
+
+private:
+  Vec2 _gridUnits;
 };

@@ -28,26 +28,34 @@ float largeDialSize{0.875f};
 ml::Rect labelRect(0, 0, 3, 1.0);
 
 VutuView::VutuView(TextFragment appName, size_t instanceNum) :
-  AppView(appName, instanceNum)
+  AppView(appName, instanceNum),
+  PlatformView(nullptr, nullptr, nullptr, 0, 0) // Initialize base class with required arguments
 {
+  // get names of other Actors we might communicate with
+  _controllerName = TextFragment(appName, "controller", ml::textUtils::naturalNumberToText(instanceNum));
+  // Remove _processorName reference since it's not declared
+  
+  // register ourself
+  auto myName = TextFragment(appName, "view", ml::textUtils::naturalNumberToText(instanceNum));
+  registerActor(myName, this);
+  
+  // Set initial size
+  setSizeInGridUnits(kDefaultGridUnits);
+  // Remove setMinSizeInGridUnits call since it doesn't exist
+  setGridSizeDefault(kDefaultGridUnitSize);
+
   Actor::start();
   std::cout << "VutuView: " << appName << " " << instanceNum << "\n";
-
-  // set initial size and limits
-  setSizeInGridUnits(kDefaultGridUnits);
-  setMinSizeInGridUnits(kDefaultGridUnits);
-  setGridSizeDefault(kDefaultGridUnitSize);
 }
 
 VutuView::~VutuView ()
 {
 }
 
-#pragma mark from ml::AppView
-
 void VutuView::layoutView(DrawContext dc)
 {
-  Vec2 gridDims = getSizeInGridUnits();
+  // Changed: use VutuView's getGridUnits instead of ml::View's non-existent method.
+  Vec2 gridDims = this->getGridUnits();
   int gx = gridDims.x();
   int gy = gridDims.y();
   
@@ -142,7 +150,7 @@ void VutuView::layoutView(DrawContext dc)
   (_view->_widgets, [&](Widget& w)
    {
     w.resize(dc);
-  }
+   }
    );
 }
 
@@ -337,7 +345,7 @@ void VutuView::makeWidgets(const ParameterDescriptionList& pdl)
   (_view->_widgets, [&](Widget& w)
    {
     w.setProperty("visible", true);
-  }
+   }
    );
   
   // play buttons disabled until we have a sample
@@ -349,18 +357,6 @@ void VutuView::makeWidgets(const ParameterDescriptionList& pdl)
 
   _setupWidgets(pdl);
 }
-
-
-/*
-void VutuView::debug()
-{
-  //std::cout << "VutuView: " << getMessagesAvailable() << " messages in queue. max: "
-  //  << _maxQueueSize << " handled: " << _msgCounter << " \n";
-  //_msgCounter = 0;
-}
-*/
-
-// Actor implementation
 
 void VutuView::onMessage(Message msg)
 {
@@ -406,8 +402,10 @@ void VutuView::onMessage(Message msg)
       {
         case(hash("set_source_data")):
         {
-          // get Sample pointer
-          Sample* pSample = *reinterpret_cast<Sample**>(msg.value.getBlobValue());
+          // Store the blob value to prevent it from being destroyed
+          auto blobValue = msg.value.getBlobValue();
+          const void* blobPtr = blobValue.data();
+          Sample* pSample = *static_cast<Sample* const*>(blobPtr);
           _view->_widgets["source"]->receiveNamedRawPointer("sample", pSample);
           
           break;
@@ -415,8 +413,10 @@ void VutuView::onMessage(Message msg)
           
         case(hash("set_partials_data")):
         {
-          // get Partials data pointer
-          VutuPartialsData* pPartials = *reinterpret_cast<VutuPartialsData**>(msg.value.getBlobValue());
+          // Store the blob value to prevent it from being destroyed
+          auto blobValue = msg.value.getBlobValue();
+          const void* blobPtr = blobValue.data();
+          VutuPartialsData* pPartials = *static_cast<VutuPartialsData* const*>(blobPtr);
           _view->_widgets["partials"]->receiveNamedRawPointer("partials", pPartials);
           
           break;
@@ -424,8 +424,10 @@ void VutuView::onMessage(Message msg)
           
         case(hash("set_synth_data")):
         {
-          // get Sample pointer
-          Sample* pSample = *reinterpret_cast<Sample**>(msg.value.getBlobValue());
+          // Store the blob value to prevent it from being destroyed
+          auto blobValue = msg.value.getBlobValue();
+          const void* blobPtr = blobValue.data();
+          Sample* pSample = *static_cast<Sample* const*>(blobPtr);
           _view->_widgets["synth"]->receiveNamedRawPointer("sample", pSample);
           
           break;
@@ -495,6 +497,13 @@ void VutuView::onMessage(Message msg)
 void VutuView::setSizeInGridUnits(const Vec2& size)
 {
   // Implementation of setSizeInGridUnits
+  _gridUnits = size; // ensure _gridUnits is updated
+}
+
+// Added new getter to replace the missing getGridUnits() of ml::View
+Vec2 VutuView::getGridUnits() const
+{
+  return _gridUnits;
 }
 
 void VutuView::createPlatformView(void* windowPtr, int flags)

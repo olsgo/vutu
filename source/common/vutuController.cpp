@@ -19,9 +19,7 @@
 #include "loris.h"
 #include "PartialList.h"
 #include "Synthesizer.h"
-
-// SDIF includes
-#include "sdif.h"
+#include "SdifFile.h"
 
 using namespace ml;
 
@@ -143,6 +141,7 @@ void VutuController::broadcastSynthesizedSample()
   sendMessageToActor(_processorName, {"do/set_synth_data", samplePtrValue});
   sendMessageToActor(_viewName, {"do/set_synth_data", samplePtrValue});
 }
+
 
 
 int VutuController::saveSampleToWavFile(const Sample& sample, Path wavPath)
@@ -543,34 +542,21 @@ void VutuController::synthesize()
 
 void VutuController::exportToSDIF(const std::string& filename)
 {
-  // Initialize SDIF with RBEP type
-  SdifGenInit("RBEP");
-
-  // Open SDIF file for writing
-  SdifFileT* file = SdifFOpen(filename.c_str(), eWriteFile);
-
-  // Write SDIF header
-  SdifFWriteHeader(file, eSignatureSDIF);
-
-  // Define RBEP matrix type
-  SdifDefineMatrixType(file, "1RBEP", 6, "Index Frequency Amplitude Phase Bandwidth Offset");
-
-  // Write partials to SDIF file
-  for (const auto& partial : _vutuPartials->partials)
+  try
   {
-    for (size_t i = 0; i < partial.time.size(); ++i)
-    {
-      SdifMatrixT* matrix = SdifFCurrMatrix(file);
-      SdifFSetCurrMatrix(file, matrix);
-      SdifFSetMatrixHeader(file, matrix, "1RBEP", 1, 1, partial.time[i]);
+    // Convert VutuPartials back to Loris partials if needed
+    _sumuToLorisPartials(_vutuPartials.get(), _lorisPartials.get());
 
-      SdifFSetMatrixRow(file, matrix, 1, 1, partial.freq[i], partial.amp[i], partial.phase[i], partial.bandwidth[i], partial.time[i]);
-      SdifFWriteMatrix(file, matrix);
-    }
+    // Create a new SDIF file with our partials
+    Loris::SdifFile sdifFile(_lorisPartials->begin(), _lorisPartials->end());
+
+    // Save to file
+    sdifFile.write(filename);
   }
-
-  // Close SDIF file
-  SdifFClose(file);
+  catch (const std::exception& e)
+  {
+    std::cerr << "Error writing SDIF file: " << e.what() << std::endl;
+  }
 }
 
 void VutuController::onMessage(Message m)
