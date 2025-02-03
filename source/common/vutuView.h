@@ -44,4 +44,8 @@ public:
   // New member functions
   void setSizeInGridUnits(const Vec2& size);
   void createPlatformView(void* windowPtr, int flags);
+  Vec2 getGridUnits() const;
+
+private:
+  Vec2 _gridUnits;
 };
