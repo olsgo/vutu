@@ -33,7 +33,7 @@ VutuView::VutuView(TextFragment appName, size_t instanceNum) :
 {
   // get names of other Actors we might communicate with
   _controllerName = TextFragment(appName, "controller", ml::textUtils::naturalNumberToText(instanceNum));
-  _processorName = TextFragment(appName, "processor", ml::textUtils::naturalNumberToText(instanceNum));
+  // Remove _processorName reference since it's not declared
   
   // register ourself
   auto myName = TextFragment(appName, "view", ml::textUtils::naturalNumberToText(instanceNum));
@@ -41,7 +41,7 @@ VutuView::VutuView(TextFragment appName, size_t instanceNum) :
   
   // Set initial size
   setSizeInGridUnits(kDefaultGridUnits);
-  setMinSizeInGridUnits(kDefaultGridUnits);
+  // Remove setMinSizeInGridUnits call since it doesn't exist
   setGridSizeDefault(kDefaultGridUnitSize);
 
   Actor::start();
@@ -54,7 +54,8 @@ VutuView::~VutuView ()
 
 void VutuView::layoutView(DrawContext dc)
 {
-  Vec2 gridDims = getSizeInGridUnits();
+  // Use getSizeInGridUnits() from the base class
+  Vec2 gridDims = _view->getSizeInGridUnits();
   int gx = gridDims.x();
   int gy = gridDims.y();
   
