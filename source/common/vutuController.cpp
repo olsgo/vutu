@@ -19,6 +19,8 @@
 #include "loris.h"
 #include "PartialList.h"
 #include "Synthesizer.h"
+#include <loris/SDIF.h>
+#include <loris/SdifFile.h>
 
 // SDIF includes
 #include "sdif.h"
@@ -143,6 +145,7 @@ void VutuController::broadcastSynthesizedSample()
   sendMessageToActor(_processorName, {"do/set_synth_data", samplePtrValue});
   sendMessageToActor(_viewName, {"do/set_synth_data", samplePtrValue});
 }
+
 
 
 int VutuController::saveSampleToWavFile(const Sample& sample, Path wavPath)
