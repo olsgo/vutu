@@ -119,7 +119,6 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/source")
 #--------------------------------------------------------------------
 # find SDIF library
 #--------------------------------------------------------------------
-
 find_package(Sdif REQUIRED)
 
 #--------------------------------------------------------------------
@@ -298,7 +297,6 @@ target_link_libraries(${target} PRIVATE Sdif::Sdif)
 
 # add other external libraries
 target_link_libraries(${target} PRIVATE SndFile::sndfile libresample)
-
 
 
 

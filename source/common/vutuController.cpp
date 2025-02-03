@@ -550,17 +550,17 @@ void VutuController::exportToSDIF(const std::string& filename)
   SdifFileT* file = SdifFOpen(filename.c_str(), eWriteFile);
 
   // Write SDIF header
-  SdifFWriteHeader(file, eSignatureSDIF);
+  SdifFWriteHeader(file, SDIF_SIGNATURE);
 
   // Define RBEP matrix type
-  SdifDefineMatrixType(file, "1RBEP", 6, "Index Frequency Amplitude Phase Bandwidth Offset");
+  SdifFDefineMatrixType(file, "1RBEP", 6, "Index Frequency Amplitude Phase Bandwidth Offset");
 
   // Write partials to SDIF file
   for (const auto& partial : _vutuPartials->partials)
   {
     for (size_t i = 0; i < partial.time.size(); ++i)
     {
-      SdifMatrixT* matrix = SdifFCurrNbMatrix(file);
+      SdifMatrix* matrix = SdifFCurrNbMatrix(file);
       SdifFSetCurrMatrix(file, matrix);
       SdifFSetMatrixHeader(file, matrix, "1RBEP", 1, 1, partial.time[i]);
 
