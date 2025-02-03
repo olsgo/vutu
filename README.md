@@ -23,3 +23,27 @@ On MacOS, we link to SDL2.framework. Get the latest SDL2 .dmg, place SDL2.framew
 
 Everything is theoretically cross-platform but I'm currently working on Mac and have not been testing on Windows.
 
+### Installing Loris
+
+To install the Loris package, follow these steps:
+
+1. Clone the Loris repository:
+```
+git clone https://github.com/madronalabs/loris.git
+```
+
+2. Build and install Loris:
+```
+cd loris
+mkdir build
+cd build
+cmake ..
+make
+sudo make install
+```
+
+3. Specify the Loris package configuration file path in your `CMakeLists.txt` file:
+```cmake
+set(Loris_DIR "/path/to/loris/cmake")
+find_package(Loris REQUIRED)
+```
