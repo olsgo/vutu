@@ -28,7 +28,8 @@ float largeDialSize{0.875f};
 ml::Rect labelRect(0, 0, 3, 1.0);
 
 VutuView::VutuView(TextFragment appName, size_t instanceNum) :
-  PlatformView(kDefaultGridUnits) // Initialize base class with grid units
+  AppView(appName, instanceNum),
+  PlatformView(nullptr, nullptr, nullptr, 0, 0) // Initialize base class with required arguments
 {
   // get names of other Actors we might communicate with
   _controllerName = TextFragment(appName, "controller", ml::textUtils::naturalNumberToText(instanceNum));
@@ -40,23 +41,16 @@ VutuView::VutuView(TextFragment appName, size_t instanceNum) :
   
   // Set initial size
   setSizeInGridUnits(kDefaultGridUnits);
-  
-  AppView(appName, instanceNum)
-{
-  Actor::start();
-  std::cout << "VutuView: " << appName << " " << instanceNum << "\n";
-
-  // set initial size and limits
-  setSizeInGridUnits(kDefaultGridUnits);
   setMinSizeInGridUnits(kDefaultGridUnits);
   setGridSizeDefault(kDefaultGridUnitSize);
+
+  Actor::start();
+  std::cout << "VutuView: " << appName << " " << instanceNum << "\n";
 }
 
 VutuView::~VutuView ()
 {
 }
-
-#pragma mark from ml::AppView
 
 void VutuView::layoutView(DrawContext dc)
 {
@@ -155,7 +149,7 @@ void VutuView::layoutView(DrawContext dc)
   (_view->_widgets, [&](Widget& w)
    {
     w.resize(dc);
-  }
+   }
    );
 }
 
@@ -350,7 +344,7 @@ void VutuView::makeWidgets(const ParameterDescriptionList& pdl)
   (_view->_widgets, [&](Widget& w)
    {
     w.setProperty("visible", true);
-  }
+   }
    );
   
   // play buttons disabled until we have a sample
@@ -362,18 +356,6 @@ void VutuView::makeWidgets(const ParameterDescriptionList& pdl)
 
   _setupWidgets(pdl);
 }
-
-
-/*
-void VutuView::debug()
-{
-  //std::cout << "VutuView: " << getMessagesAvailable() << " messages in queue. max: "
-  //  << _maxQueueSize << " handled: " << _msgCounter << " \n";
-  //_msgCounter = 0;
-}
-*/
-
-// Actor implementation
 
 void VutuView::onMessage(Message msg)
 {
