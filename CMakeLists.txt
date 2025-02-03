@@ -76,8 +76,9 @@ message("madronalib library should be at: " ${MADRONALIB_LIBRARY_DIR}/${madronal
 #--------------------------------------------------------------------
 
 # Add source directory to module path to find FindLoris.cmake
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/source")
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/source" "${CMAKE_SOURCE_DIR}/cmake")
 
+set(Loris_DIR "/path/to/loris/cmake")
 find_package(Loris REQUIRED)
 
 if(APPLE)
