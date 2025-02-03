@@ -503,7 +503,7 @@ void VutuView::setSizeInGridUnits(const Vec2& size)
 // Added new getter to replace the missing getGridUnits() of ml::View
 Vec2 VutuView::getGridUnits() const
 {
-  return Vec2(20, 15);
+  return _gridUnits;
 }
 
 void VutuView::createPlatformView(void* windowPtr, int flags)
