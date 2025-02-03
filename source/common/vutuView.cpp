@@ -54,8 +54,8 @@ VutuView::~VutuView ()
 
 void VutuView::layoutView(DrawContext dc)
 {
-  // Use getSizeInGridUnits() from the base class
-  Vec2 gridDims = _view->getSizeInGridUnits();
+  // Changed: use VutuView's getGridUnits instead of ml::View's non-existent method.
+  Vec2 gridDims = this->getGridUnits();
   int gx = gridDims.x();
   int gy = gridDims.y();
   
@@ -497,6 +497,13 @@ void VutuView::onMessage(Message msg)
 void VutuView::setSizeInGridUnits(const Vec2& size)
 {
   // Implementation of setSizeInGridUnits
+  _gridUnits = size; // ensure _gridUnits is updated
+}
+
+// Added new getter to replace the missing getGridUnits() of ml::View
+Vec2 VutuView::getGridUnits() const
+{
+  return Vec2(20, 15);
 }
 
 void VutuView::createPlatformView(void* windowPtr, int flags)
