@@ -338,19 +338,8 @@ void VutuProcessor::togglePlaybackState(Symbol whichSample)
 
 void VutuProcessor::onMessage(Message msg)
 {
-//  std::cout << "VutuProcessor: " << msg.address << " -> " << msg.value << "\n";
-  
   switch(hash(head(msg.address)))
   {
-    case(hash("set_param")):
-    {
-      _params.setFromNormalizedValue(tail(msg.address), msg.value);
-      break;
-    }
-    case(hash("set_prop")):
-    {
-      break;
-    }
     case(hash("do")):
     {
       switch(hash(second(msg.address)))
@@ -360,16 +349,15 @@ void VutuProcessor::onMessage(Message msg)
           playbackState = "off";
           sendMessageToActor(_controllerName, Message{"do/playback_stopped"});
           
-          // get pointer from message
-          _pSourceSampleInController = *reinterpret_cast<ml::Sample**>(msg.value.getBlobValue());
+          // Store the blob value to prevent it from being destroyed
+          auto blobValue = msg.value.getBlobValue();
+          const void* blobPtr = blobValue.data();
+          _pSourceSampleInController = *static_cast<ml::Sample* const*>(blobPtr);
           
           int currentSampleRate = _processData.sampleRate;
-//          std::cout << "VutuProcessor: sr = " << currentSampleRate << "\n";
-  //        std::cout << "    sample input: sr = " << _pSourceSampleInController->sampleRate << "\n";
           
           // resample to current system sample rate for playback
           _sourceSample.sampleRate = currentSampleRate;
-          
           resample(_pSourceSampleInController, &_sourceSample);
           break;
         }
@@ -379,13 +367,10 @@ void VutuProcessor::onMessage(Message msg)
           playbackState = "off";
           sendMessageToActor(_controllerName, Message{"do/playback_stopped"});
           
-          // get pointer from message
-          Loris::PartialList* pPartials = *reinterpret_cast<Loris::PartialList**>(msg.value.getBlobValue());
-          _pLorisPartials = *reinterpret_cast<Loris::PartialList**>(msg.value.getBlobValue());
-          
-
- //         std::cout << "VutuProcessor: got new loris partials: n = " << _pLorisPartials->size() << "\n";
-
+          // Store the blob value to prevent it from being destroyed
+          auto blobValue = msg.value.getBlobValue();
+          const void* blobPtr = blobValue.data();
+          _pLorisPartials = *static_cast<Loris::PartialList* const*>(blobPtr);
           break;
         }
 
@@ -394,9 +379,10 @@ void VutuProcessor::onMessage(Message msg)
           playbackState = "off";
           sendMessageToActor(_controllerName, Message{"do/playback_stopped"});
           
-          // get pointer from message
-          _pSynthesizedSample = *reinterpret_cast<ml::Sample**>(msg.value.getBlobValue());
-
+          // Store the blob value to prevent it from being destroyed
+          auto blobValue = msg.value.getBlobValue();
+          const void* blobPtr = blobValue.data();
+          _pSynthesizedSample = *static_cast<ml::Sample* const*>(blobPtr);
           break;
         }
           

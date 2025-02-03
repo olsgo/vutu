@@ -28,6 +28,19 @@ float largeDialSize{0.875f};
 ml::Rect labelRect(0, 0, 3, 1.0);
 
 VutuView::VutuView(TextFragment appName, size_t instanceNum) :
+  PlatformView(kDefaultGridUnits) // Initialize base class with grid units
+{
+  // get names of other Actors we might communicate with
+  _controllerName = TextFragment(appName, "controller", ml::textUtils::naturalNumberToText(instanceNum));
+  _processorName = TextFragment(appName, "processor", ml::textUtils::naturalNumberToText(instanceNum));
+  
+  // register ourself
+  auto myName = TextFragment(appName, "view", ml::textUtils::naturalNumberToText(instanceNum));
+  registerActor(myName, this);
+  
+  // Set initial size
+  setSizeInGridUnits(kDefaultGridUnits);
+  
   AppView(appName, instanceNum)
 {
   Actor::start();
@@ -406,8 +419,10 @@ void VutuView::onMessage(Message msg)
       {
         case(hash("set_source_data")):
         {
-          // get Sample pointer
-          Sample* pSample = *reinterpret_cast<Sample**>(msg.value.getBlobValue());
+          // Store the blob value to prevent it from being destroyed
+          auto blobValue = msg.value.getBlobValue();
+          const void* blobPtr = blobValue.data();
+          Sample* pSample = *static_cast<Sample* const*>(blobPtr);
           _view->_widgets["source"]->receiveNamedRawPointer("sample", pSample);
           
           break;
@@ -415,8 +430,10 @@ void VutuView::onMessage(Message msg)
           
         case(hash("set_partials_data")):
         {
-          // get Partials data pointer
-          VutuPartialsData* pPartials = *reinterpret_cast<VutuPartialsData**>(msg.value.getBlobValue());
+          // Store the blob value to prevent it from being destroyed
+          auto blobValue = msg.value.getBlobValue();
+          const void* blobPtr = blobValue.data();
+          VutuPartialsData* pPartials = *static_cast<VutuPartialsData* const*>(blobPtr);
           _view->_widgets["partials"]->receiveNamedRawPointer("partials", pPartials);
           
           break;
@@ -424,8 +441,10 @@ void VutuView::onMessage(Message msg)
           
         case(hash("set_synth_data")):
         {
-          // get Sample pointer
-          Sample* pSample = *reinterpret_cast<Sample**>(msg.value.getBlobValue());
+          // Store the blob value to prevent it from being destroyed
+          auto blobValue = msg.value.getBlobValue();
+          const void* blobPtr = blobValue.data();
+          Sample* pSample = *static_cast<Sample* const*>(blobPtr);
           _view->_widgets["synth"]->receiveNamedRawPointer("sample", pSample);
           
           break;
