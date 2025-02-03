@@ -28,6 +28,11 @@ project(Vutu)
  if(APPLE)
    # For now, explicitly disable C++17 alignment feature
    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-aligned-new")
+   
+   # Add framework path for SDL2
+   set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -F/Library/Frameworks")
+   find_package(SDL2 REQUIRED)
+   include_directories(/Library/Frameworks/SDL2.framework/Headers)
  elseif(WIN32)
    # no unknown pragma warning
    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4068")
@@ -249,19 +254,27 @@ target_compile_definitions(${target} PRIVATE ML_INCLUDE_SDL=1)
 if(APPLE)
     # to use the SDL2 framework in /Library/Frameworks, do this:
     find_package(SDL2 REQUIRED COMPONENTS SDL2)
+    include_directories(/Library/Frameworks/SDL2.framework/Headers)
 elseif(WIN32)
-        # it seems like there's no standard place to put the SDL dev tools on Windows.
-        # we put them in an SDL dir alongside the main project directory.
-        set(SDL2_INCLUDE_DIRS "${CMAKE_CURRENT_LIST_DIR}/../SDL/include")
+    # it seems like there's no standard place to put the SDL dev tools on Windows.
+    # we put them in an SDL dir alongside the main project directory.
+    set(SDL2_INCLUDE_DIRS "${CMAKE_CURRENT_LIST_DIR}/../SDL/include")
 
-        # Support 64 bit builds
-        set(SDL2_LIBRARIES_DIR "${CMAKE_CURRENT_LIST_DIR}/../SDL/VisualC/x64/Release")
+    # Support 64 bit builds
+    set(SDL2_LIBRARIES_DIR "${CMAKE_CURRENT_LIST_DIR}/../SDL/VisualC/x64/Release")
 endif()
 message("SDL2 headers should be in: " ${SDL2_INCLUDE_DIRS} )
 message("SDL2 libraries should be in: " ${SDL2_LIBRARIES_DIR} )
-target_include_directories(${target} PRIVATE ${SDL2_INCLUDE_DIRS})
-target_link_libraries(${target} PRIVATE "${SDL2_LIBRARIES_DIR}/SDL2.lib")
-target_link_libraries(${target} PRIVATE "${SDL2_LIBRARIES_DIR}/SDL2main.lib")
+
+# Update include and link commands for SDL2
+if(APPLE)
+    target_include_directories(${target} PRIVATE ${SDL2_INCLUDE_DIRS})
+    target_link_libraries(${target} PRIVATE "-framework SDL2")
+else()
+    target_include_directories(${target} PRIVATE ${SDL2_INCLUDE_DIRS})
+    target_link_libraries(${target} PRIVATE "${SDL2_LIBRARIES_DIR}/SDL2.lib")
+    target_link_libraries(${target} PRIVATE "${SDL2_LIBRARIES_DIR}/SDL2main.lib")
+endif()
 
 # add include dirs
 target_include_directories(${target} PRIVATE  "${CMAKE_SOURCE_DIR}/source" )
@@ -372,6 +385,57 @@ elseif(WIN32)
         target_link_libraries(${target} PRIVATE "version.lib")
         target_link_libraries(${target} PRIVATE "Imm32.lib")
         target_link_libraries(${target} PRIVATE debug "msvcrtd.lib" optimized "msvcrt.lib")
+endif()
+
+# for Mac OS copy SDL2.framework into bundle and codesign it
+if(APPLE)
+
+  set(APP_BUNDLE ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/Vutu.app)
+  
+  # Mac OS Monterey, XCode 14.0
+  # set(ENTITLEMENTS ${CMAKE_CURRENT_BINARY_DIR}/build/${target}.build/$<CONFIG>/${target}.build/${target}.app.xcent)
+    
+  # Mac OS Ventura, XCode 14.2 - looks like they changed the .xcent location
+  set(ENTITLEMENTS ${CMAKE_CURRENT_BINARY_DIR}/${target}.build/$<CONFIG>/${target}.build/${target}.app.xcent)
+    
+  message("ENTITLEMENTS: " ${ENTITLEMENTS})
+
+  # source location of the SDL2 framework. Get the latest dmg from
+  # https://github.com/libsdl-org/SDL/releases and copy the .framework
+  # to this location.
+  SET(FRAMEWORK "/Library/Frameworks/SDL2.framework")
+  
+  add_custom_command(
+     TARGET ${target}
+     POST_BUILD
+     COMMAND ditto
+         "${FRAMEWORK}"
+         "${APP_BUNDLE}/Contents/Frameworks/SDL2.framework"
+  )
+
+  # Add build target for codesigning the framework bundle
+  add_custom_command(TARGET ${target}
+      POST_BUILD
+      COMMAND codesign --force --sign "-" --entitlements ${ENTITLEMENTS} "${APP_BUNDLE}/Contents/Frameworks/SDL2.framework/Versions/A"
+  )
+endif()
+# Update the target_link_libraries command to use the correct library reference
+if(APPLE)
+  target_link_libraries(Vutu
+    PRIVATE
+    "-framework SDL2"
+    ${LORIS_LIBRARIES}
+    sndfile
+    libresample    # Changed from 'resample' to 'libresample' to match the target name
+  )
+else()
+  target_link_libraries(Vutu
+    PRIVATE
+    SDL2
+    ${LORIS_LIBRARIES}
+    sndfile
+    libresample    # Changed here as well
+  )
 endif()
 
 # for Mac OS copy SDL2.framework into bundle and codesign it
