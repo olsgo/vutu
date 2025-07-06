@@ -24,5 +24,18 @@
 	<true/>
 	<key>NSHighResolutionCapable</key>
 	<true/>
+	<key>LSMinimumSystemVersion</key>
+	<string>12.0</string>
+	<key>LSArchitecturePriority</key>
+	<array>
+		<string>arm64</string>
+		<string>x86_64</string>
+	</array>
+	<key>NSSupportsAutomaticGraphicsSwitching</key>
+	<true/>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Vutu requires microphone access for audio input and analysis.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Vutu may need camera access for certain audio-visual features.</string>
 </dict>
 </plist>
