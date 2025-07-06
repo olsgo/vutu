@@ -2,6 +2,9 @@
 // vutu (c) 2022, Madrona Labs LLC, all rights reserved
 // see LICENSE.txt for details
 
+#define stringPluginName "Vutu"
+#define stringCompanyName "Madrona Labs"
+
 #define MAJOR_VERSION_STR "0"
 #define MAJOR_VERSION_INT 0
 
@@ -24,12 +27,12 @@
 #if defined(__x86_64__) || defined(_M_X64)
   #define ML_ARCH "x86_64"
 #elif defined(i386) || defined(__i386__) || defined(__i386) || defined(_M_IX86)
-  #define ML_ARCH "x86_32";
+  #define ML_ARCH "x86_32"
 #elif defined(__arm__) || defined(__aarch64__)
   #define ML_ARCH "Arm"
 #else
   #define ML_ARCH "unknown"
-  warning ML_ARCH is undefined!
+  #warning ML_ARCH is undefined!
 #endif
 
 inline const char* getAppVersion()

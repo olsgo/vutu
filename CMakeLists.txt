@@ -9,11 +9,11 @@
 # Windows:
 # cmake -G"Visual Studio 14 2015 Win64" ..
 
-cmake_minimum_required (VERSION 3.5)
+cmake_minimum_required (VERSION 3.19)
 
 IF(APPLE)
   SET(CMAKE_OSX_ARCHITECTURES "x86_64;arm64" CACHE STRING "Build architectures for Mac OS X" FORCE)
-  set(CMAKE_OSX_DEPLOYMENT_TARGET "10.14" CACHE STRING "Minimum OS X deployment version")
+  set(CMAKE_OSX_DEPLOYMENT_TARGET "12.0" CACHE STRING "Minimum OS X deployment version")
 ENDIF(APPLE)
 
 project(Vutu)
@@ -28,6 +28,11 @@ project(Vutu)
  if(APPLE)
    # For now, explicitly disable C++17 alignment feature
    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-aligned-new")
+   
+   # Add Apple Silicon optimizations
+   if(CMAKE_OSX_ARCHITECTURES MATCHES "arm64")
+     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mcpu=apple-m1")
+   endif()
  elseif(WIN32)
    # no unknown pragma warning
    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4068")
@@ -339,8 +344,6 @@ if(APPLE)
         XCODE_ATTRIBUTE_INFOPLIST_FILE ${CMAKE_CURRENT_LIST_DIR}/source/mac/Info.plist
         XCODE_ATTRIBUTE_INFOPLIST_PREPROCESS NO
         )
-elseif(APPLE)
-    target_sources(${target} PRIVATE resource/vutu.rc)
 endif(APPLE)
         
 message (STATUS "Info.plist source: ${CMAKE_CURRENT_LIST_DIR}/source/mac/Info.plist")
@@ -375,11 +378,8 @@ if(APPLE)
 
   set(APP_BUNDLE ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/Vutu.app)
   
-  # Mac OS Monterey, XCode 14.0
-  # set(ENTITLEMENTS ${CMAKE_CURRENT_BINARY_DIR}/build/${target}.build/$<CONFIG>/${target}.build/${target}.app.xcent)
-    
-  # Mac OS Ventura, XCode 14.2 - looks like they changed the .xcent location
-  set(ENTITLEMENTS ${CMAKE_CURRENT_BINARY_DIR}/${target}.build/$<CONFIG>/${target}.build/${target}.app.xcent)
+  # Use modern entitlements file for macOS Sequoia compatibility
+  set(ENTITLEMENTS ${CMAKE_CURRENT_LIST_DIR}/source/mac/Vutu.entitlements)
     
   message("ENTITLEMENTS: " ${ENTITLEMENTS})
 
@@ -396,9 +396,11 @@ if(APPLE)
          "${APP_BUNDLE}/Contents/Frameworks/SDL2.framework"
   )
 
-  # Add build target for codesigning the framework bundle
+  # Add build target for codesigning the framework bundle with modern entitlements
   add_custom_command(TARGET ${target}
       POST_BUILD
       COMMAND codesign --force --sign "-" --entitlements ${ENTITLEMENTS} "${APP_BUNDLE}/Contents/Frameworks/SDL2.framework/Versions/A"
+      COMMAND codesign --force --sign "-" --entitlements ${ENTITLEMENTS} "${APP_BUNDLE}"
+      COMMENT "Code signing application and frameworks with modern entitlements"
   )
 endif()

@@ -19,7 +19,16 @@ Vutu can be built with CMake:
 
 The libsndfile and libresample libraries are also included. Because some configuration is required to get these to work, they are compiled here from source. 
 
-On MacOS, we link to SDL2.framework. Get the latest SDL2 .dmg, place SDL2.framework into /Library/Frameworks, and CMake should take care of the rest. 
+### macOS (including Apple Silicon)
+
+On macOS, we link to SDL2.framework. Get the latest SDL2 .dmg, place SDL2.framework into /Library/Frameworks, and CMake should take care of the rest. 
+
+**Apple Silicon Support**: Vutu now includes full Apple Silicon (M1/M2/M3) support with universal binary compilation. The build system automatically detects the target architecture and applies appropriate optimizations.
+
+**Requirements**: 
+- macOS 12.0 or later
+- Xcode 14.0 or later for optimal Apple Silicon support
+- CMake 3.19 or later
 
 Everything is theoretically cross-platform but I'm currently working on Mac and have not been testing on Windows.
 
